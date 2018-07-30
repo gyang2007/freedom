@@ -11,6 +11,42 @@ import freedom.log.logger as my_logger
 __logger = my_logger.getlogger('gather_data')
 
 
+def check_stock_status(trade_date):
+    """
+    利用当日成交数据校验系统中的数据停牌、交易状态是否正确
+    :return:
+    """
+    if my_common.is_open_day(str(trade_date)):
+        day_all_df = ts.get_day_all(str(trade_date))
+        if not day_all_df.empty:
+            stock_series = stock_base_dao.query_stock_base_to_map()
+            for index, row in day_all_df.iterrows():
+                code = my_common.convert_standard_code(row['code'])
+                stock_local = stock_series.get(code)
+                # 本系统中无此stock数据
+                if not stock_local:
+                    __logger.warn(
+                        "Stock is not exists in local system, code = {}".format(code))
+                    continue
+
+                open = row['open']
+                high = row['high']
+                low = row['low']
+                volume = row['volume']
+                # 停牌
+                if open == 0.0 and high == 0.0 and low == 0.0 and volume == 0.0:
+                    # 本系统是否为停牌状态
+                    if stock_local and stock_local['status'] == 1:
+                        __logger.warn(
+                            "Stock is already suspension, but no suspension in local system, code = {}".format(code))
+                        continue
+                else:
+                    if stock_local and (not stock_local['status'] == 1):
+                        __logger.warn(
+                            "Stock is no suspension, but suspension in local system, code = {}".format(code))
+                        continue
+
+
 # 完善交易数据
 def gather_stock_trade_data(code, date):
     """
@@ -50,27 +86,34 @@ def gather_stock_trade_data(code, date):
         __logger.warn("Get stock trade data empty, code = {}, date = {}".format(code, date))
 
 
-def gather_current_day_stock_trade_data():
+def gather_current_day_stock_trade_data(date=None):
     """
     当天的交易截止后补充当天的交易数据
     :return:
     """
-    current_date = datetime.date.today()
+    if date:
+        current_date = date
+    else:
+        current_date = datetime.date.today()
     if my_common.is_open_day(str(current_date)):
         day_all_df = ts.get_day_all(str(current_date))
         day_all_df.to_csv('/Users/gyang/develop/PycharmProjects/freedom/export/day_all.csv')
         if not day_all_df.empty:
+            stock_series = stock_base_dao.query_stock_base_to_map()
             insert_datas = []
             for index, row in day_all_df.iterrows():
                 code = my_common.convert_standard_code(row['code'])
+                open = row['open']
+                high = row['high']
+                low = row['low']
                 volume = row['volume']
-                # 成交量为0，停牌
-                if volume == 0.0:
-                    __logger.warn("Stock suspension, code = {}".format(code))
+                # 停牌
+                if open == 0.0 and high == 0.0 and low == 0.0 and volume == 0.0:
+                    __logger.warn("Stock is already suspension, code = {}".format(code))
                     continue
 
                 # 查看在本系统中是否是停牌状态
-                stock_base = stock_base_dao.query_stock_base_by_code(code)
+                stock_base = stock_series.get(code)
                 if stock_base:
                     if stock_base['status'] == 1:
                         data = [my_common.convert_standard_code(code), row['open'], row['high'], row['low'],
@@ -86,7 +129,8 @@ def gather_current_day_stock_trade_data():
 
             stock_trade_daily_dao.insert_stock_trade_daily_batch(insert_datas)
             __logger.info(
-                "Gather current date stock trade data success, date = {}, size = {}".format(current_date, len(insert_datas)))
+                "Gather current date stock trade data success, date = {}, size = {}".format(current_date,
+                                                                                            len(insert_datas)))
 
 
 def __process_gather_stock_trade_data():
@@ -155,6 +199,7 @@ if __name__ == '__main__':
 
     # day_all_df = ts.get_day_all('2018-07-25')
     # day_all_df.to_csv('/Users/gyang/develop/PycharmProjects/freedom/export/day_all.csv')
-    # gather_current_day_stock_trade_data()
+    # check_stock_status('2018-07-30')
+    # gather_current_day_stock_trade_data('2018-07-30')
     print("done!!!")
     pass

@@ -56,6 +56,9 @@ import talib as ta
 # # print(sss)
 # # print(sss2)
 
-a = None
-if a > 2:
+sss = pd.Series({'000123': {'a1': 'v1', 'a2': 'v2'}, '000001': {'b1': 'v1', 'b2': 'v2'}})
+sss = sss.append(pd.Series({'000005': {'c1': 'c1', 'a2': 'v2'}}))
+print(sss)
+result = sss.get('000123')
+if not result:
     print(True)

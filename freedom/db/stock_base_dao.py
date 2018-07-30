@@ -1,3 +1,5 @@
+import pandas as pd
+
 import freedom.db.dbutil as db_util
 import freedom.log.logger as my_logger
 
@@ -44,3 +46,25 @@ def query_stock_base_by_code(code):
         __logger.exception("Query stock_base error")
 
     return result
+
+
+def query_stock_base_to_map():
+    """
+    查询所有Stock信息，并已code为索引
+    :return: Series
+    """
+    result_series = pd.Series()
+    sql = 'select code, type, `name`, status, time_to_market from stock_base where type = 1'
+    try:
+        cur = db_util.get_connection().cursor()
+        cur.execute(sql)
+        res = cur.fetchall()
+        cur.close()
+
+        for r in res:
+            result_series = result_series.append(pd.Series(
+                {r[0]: {'code': r[0], 'type': r[1], 'name': r[2], 'status': r[3], 'time_to_market': r[4]}}))
+    except:
+        __logger.exception("Query query_stock_base_to_map error")
+
+    return result_series

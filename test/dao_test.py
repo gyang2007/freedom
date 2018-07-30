@@ -14,9 +14,12 @@ import freedom.db.stock_base_dao as stock_base_dao
 # result = stock_base_dao.query_stock_base_by_code('123456')
 # print(result)
 
-for i in range(100):
-    stock_trade_daily_dao.query_stock_trade_daily_limit_size('000001', '2018-07-25', 1)
-    print(i)
-    time.sleep(0.5)
+# for i in range(100):
+#     stock_trade_daily_dao.query_stock_trade_daily_limit_size('000001', '2018-07-25', 1)
+#     print(i)
+#     time.sleep(0.5)
+#
+# time.sleep(1000)
 
-time.sleep(1000)
+result_series = stock_base_dao.query_stock_base_to_map()
+print(result_series)
