@@ -82,6 +82,25 @@ def insert_stock_trade_daily_batch(datas):
         logger.exception("Insert stock_trade_daily_batch error")
 
 
+def delete_stock_trade_daily_by_trade_date(start_date, end_date):
+    """
+    根据起止日期删除交易数据
+    :param start_date:
+    :param end_date:
+    :return:
+    """
+    sql = 'delete from stock_trade_daily where trade_date BETWEEN "{}" and "{}"'.format(start_date, end_date)
+    conn = db_util.get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+    except:
+        conn.rollback()
+        logger.exception("Delete stock_trade_daily error")
+
+
 def query_stock_max_trade_date():
     """
     获取每一个stock数据最新的交易日期

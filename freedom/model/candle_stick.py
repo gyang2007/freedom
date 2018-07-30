@@ -6,6 +6,7 @@ import talib as ta
 import freedom.db.stock_base_dao as stock_base_dao
 import freedom.db.stock_trade_daily_dao as stock_trade_daily_dao
 import freedom.log.logger as my_logger
+import freedom.common as my_common
 import freedom.model.common_indicator as my_common_indicator
 
 __logger = my_logger.getlogger('candle_stick')
@@ -46,15 +47,15 @@ def white_line_over_sma5_10_20(code, date):
     return False
 
 
-if __name__ == '__main__':
-    trade_date = datetime.datetime.strptime('2018-07-25', '%Y-%m-%d')
+def __process():
+    trade_date = datetime.datetime.strptime('2018-07-26', '%Y-%m-%d')
 
     result_df = pd.DataFrame(columns=['code', 'name', 'p_position', 'p_std', 'v_ratio'])
     stock_list = stock_base_dao.query_stock_base()
     for stock in stock_list:
         code = stock['code']
         if stock['status'] == 1 and stock['type'] == 1:
-            if white_line_over_sma5_10_20(code, trade_date):
+            if my_common.is_close_over_open_price(code, trade_date) and white_line_over_sma5_10_20(code, trade_date):
                 v_ratio = my_common_indicator.avg_volume_ratio(code, trade_date, 10)
                 if v_ratio and v_ratio >= 2.0:
                     p_position = my_common_indicator.cal_price_position(code, trade_date, 250)
@@ -64,4 +65,8 @@ if __name__ == '__main__':
     result_df = result_df.sort_values(by=['p_position', 'p_std', 'v_ratio'])
     result_df = result_df.reset_index(drop=True)
     result_df.to_csv('/Users/gyang/develop/PycharmProjects/freedom/export/white_line_over_sma5_10_20.csv')
+
+
+if __name__ == '__main__':
+    __process()
     print("done!!!")

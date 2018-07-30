@@ -58,6 +58,7 @@ def gather_current_day_stock_trade_data():
     current_date = datetime.date.today()
     if my_common.is_open_day(str(current_date)):
         day_all_df = ts.get_day_all(str(current_date))
+        day_all_df.to_csv('/Users/gyang/develop/PycharmProjects/freedom/export/day_all.csv')
         if not day_all_df.empty:
             insert_datas = []
             for index, row in day_all_df.iterrows():
@@ -79,9 +80,13 @@ def gather_current_day_stock_trade_data():
                     else:
                         __logger.warn("Stock在系统中的状态为停牌或退市, code = {}, status = {}".format(code, stock_base['status']))
 
+            # 删除当天的数据
+            if len(insert_datas) > 0:
+                stock_trade_daily_dao.delete_stock_trade_daily_by_trade_date(str(current_date), str(current_date))
+
             stock_trade_daily_dao.insert_stock_trade_daily_batch(insert_datas)
             __logger.info(
-                "Gather current date stock trade data success, code = {}, date = {}".format(code, current_date))
+                "Gather current date stock trade data success, date = {}, size = {}".format(current_date, len(insert_datas)))
 
 
 def __process_gather_stock_trade_data():

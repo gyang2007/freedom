@@ -33,7 +33,7 @@ def __is_jump_high(code, date):
 
 
 def __process():
-    trade_date = datetime.datetime.strptime('2018-07-25', '%Y-%m-%d')
+    trade_date = datetime.datetime.strptime('2018-07-26', '%Y-%m-%d')
     code_set = set()
     result_df = pd.DataFrame()
     stock_list = stock_base_dao.query_stock_base()
@@ -50,17 +50,18 @@ def __process():
     code_set_copy = set(code_set)
     for code in code_set_copy:
         # 是否高开一字涨停
-        if my_common.is_jump_to_daily_limit(code_set, trade_date):
+        if my_common.is_jump_to_daily_limit(code_set, trade_date) or (
+                not my_common.is_close_over_open_price(code, trade_date)):
             code_set.remove(code)
 
-    result_df = pd.DataFrame(columns=['code', 'v_ratio', 'p_std', 'p_position'])
+    result_df = pd.DataFrame(columns=['code', 'p_position', 'p_std', 'v_ratio'])
     # 计算成交量倍率，价格的标准差
     for code in code_set:
         v_ratio = my_common_indicator.avg_volume_ratio(code, trade_date, 10)
         if v_ratio and v_ratio >= 2.0:
             p_std = my_common_indicator.cal_price_std(code, trade_date, 20)
             p_position = my_common_indicator.cal_price_position(code, trade_date, 250)
-            result_df.loc[len(result_df)] = [code, v_ratio, p_std, p_position]
+            result_df.loc[len(result_df)] = [code, p_position, p_std, v_ratio]
 
     # 排序输出
     result_df = result_df.sort_values(by=['p_position', 'p_std', 'v_ratio'])

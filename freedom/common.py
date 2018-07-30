@@ -181,6 +181,24 @@ def is_jump_to_daily_limit(code, date):
     return False
 
 
+def is_close_over_open_price(code, trade_date):
+    """
+    查询指定交易日收盘价是否大于或等于开盘价
+    :param code:
+    :param trade_date:
+    :return: True | False
+    """
+    if is_open_day(str(trade_date)):
+        stock_df = stock_trade_daily_dao.query_stock_trade_daily(code, str(trade_date), str(trade_date))
+        if not stock_df.empty:
+            open = stock_df['open'].values[0]
+            close = stock_df['close'].values[0]
+
+            return close - open >= 0
+
+    return False
+
+
 if __name__ == '__main__':
     print(get_yesterday_trading_date_before('2018-07-25'))
     print(get_yesterday_trading_date2())
