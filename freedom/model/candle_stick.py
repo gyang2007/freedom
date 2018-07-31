@@ -47,8 +47,8 @@ def white_line_over_sma5_10_20(code, date):
     return False
 
 
-def __process():
-    trade_date = datetime.datetime.strptime('2018-07-26', '%Y-%m-%d')
+def __process(date):
+    trade_date = datetime.datetime.strptime(date, '%Y-%m-%d')
 
     result_df = pd.DataFrame(columns=['code', 'name', 'p_position', 'p_std', 'v_ratio'])
     stock_list = stock_base_dao.query_stock_base()
@@ -68,5 +68,5 @@ def __process():
 
 
 if __name__ == '__main__':
-    __process()
+    __process('2018-07-30')
     print("done!!!")

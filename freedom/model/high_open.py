@@ -32,10 +32,9 @@ def __is_jump_high(code, date):
     return False
 
 
-def __process():
-    trade_date = datetime.datetime.strptime('2018-07-26', '%Y-%m-%d')
+def __process(date):
+    trade_date = datetime.datetime.strptime(date, '%Y-%m-%d')
     code_set = set()
-    result_df = pd.DataFrame()
     stock_list = stock_base_dao.query_stock_base()
 
     for stock in stock_list:
@@ -72,5 +71,5 @@ def __process():
 
 
 if __name__ == '__main__':
-    __process()
+    __process('2018-07-30')
     pass

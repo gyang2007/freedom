@@ -37,13 +37,17 @@ def check_stock_status(trade_date):
                 if open == 0.0 and high == 0.0 and low == 0.0 and volume == 0.0:
                     # 本系统是否为停牌状态
                     if stock_local and stock_local['status'] == 1:
-                        __logger.warn(
-                            "Stock is already suspension, but no suspension in local system, code = {}".format(code))
+                        # 修改本系统状态为停牌
+                        stock_base_dao.update_stock_status(code, 2)
+                        # __logger.warn("Stock is already suspension, but no suspension in local system, code = {}".format(code))
+                        __logger.warn("Update stock status in local system, code = {}, status = 2".format(code))
                         continue
                 else:
                     if stock_local and (not stock_local['status'] == 1):
-                        __logger.warn(
-                            "Stock is no suspension, but suspension in local system, code = {}".format(code))
+                        # 修改本系统状态为正常
+                        stock_base_dao.update_stock_status(code, 1)
+                        # __logger.warn("Stock is no suspension, but suspension in local system, code = {}".format(code))
+                        __logger.warn("Update stock status in local system, code = {}, status = 1".format(code))
                         continue
 
 
@@ -97,7 +101,7 @@ def gather_current_day_stock_trade_data(date=None):
         current_date = datetime.date.today()
     if my_common.is_open_day(str(current_date)):
         day_all_df = ts.get_day_all(str(current_date))
-        day_all_df.to_csv('/Users/gyang/develop/PycharmProjects/freedom/export/day_all.csv')
+        # day_all_df.to_csv('/Users/gyang/develop/PycharmProjects/freedom/export/day_all.csv')
         if not day_all_df.empty:
             stock_series = stock_base_dao.query_stock_base_to_map()
             insert_datas = []
@@ -109,7 +113,7 @@ def gather_current_day_stock_trade_data(date=None):
                 volume = row['volume']
                 # 停牌
                 if open == 0.0 and high == 0.0 and low == 0.0 and volume == 0.0:
-                    __logger.warn("Stock is already suspension, code = {}".format(code))
+                    # __logger.warn("Stock is already suspension, code = {}".format(code))
                     continue
 
                 # 查看在本系统中是否是停牌状态
@@ -199,7 +203,7 @@ if __name__ == '__main__':
 
     # day_all_df = ts.get_day_all('2018-07-25')
     # day_all_df.to_csv('/Users/gyang/develop/PycharmProjects/freedom/export/day_all.csv')
-    # check_stock_status('2018-07-30')
-    # gather_current_day_stock_trade_data('2018-07-30')
+    check_stock_status('2018-07-31')
+    # gather_current_day_stock_trade_data('2018-07-31')
     print("done!!!")
     pass

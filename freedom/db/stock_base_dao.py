@@ -6,6 +6,26 @@ import freedom.log.logger as my_logger
 __logger = my_logger.getlogger('stock_base_dao')
 
 
+def update_stock_status(code, status):
+    """
+    修改stock交易状态
+    :param code:
+    :param status: 1: 正常; 2: 停牌
+    :return:
+    """
+    sql = 'update stock_base set status = {} where code = "{}" and type = 1'.format(status, code)
+
+    conn = db_util.get_connection()
+    try:
+        cur = conn.cursor()
+        cur.execute(sql)
+        conn.commit()
+        cur.close()
+    except:
+        conn.rollback()
+        __logger.exception("Update stock_status error")
+
+
 def query_stock_base():
     """
     获取stock基本信息数据

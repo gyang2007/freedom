@@ -62,6 +62,35 @@ def query_stock_trade_daily_limit_size(code, end_date, size):
     return None
 
 
+def query_stock_trade_daily_after_date(code, start_date, size):
+    """
+    查询指定交易日期（包含）后指定数量的数据
+    :param code:
+    :param start_date:
+    :param size:
+    :return: DafaFrame
+        `code`, `open`, `high`, `low`, `close`, `volume`, `amount`, `turn_over_ratio`, `increase`, `amplitude`, `trade_date`
+    """
+    sql = """
+        SELECT
+            `code`, `open`, `high`, `low`, `close`, `volume`, `amount`, `turn_over_ratio`, `increase`, `amplitude`, `trade_date`
+        FROM
+            stock_trade_daily
+        WHERE
+            CODE = '{}'
+        AND trade_date >= '{}'
+        ORDER BY
+            trade_date
+        LIMIT {};    
+    """.format(code, start_date, size)
+    try:
+        return pd.read_sql(sql, con=db_util.get_connection())
+    except:
+        logger.exception("query_stock_trade_daily_after_date error")
+
+    return None
+
+
 def insert_stock_trade_daily_batch(datas):
     """
     批量保存数据库交易信息
