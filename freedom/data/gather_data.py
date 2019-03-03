@@ -52,20 +52,28 @@ def check_stock_status(trade_date):
 
 
 # 完善交易数据
-def gather_stock_trade_data(code, date):
+def gather_stock_trade_data(code, date, isNew=False):
     """
     向数据库中补充完善交易数据
     :param code: 补充数据的起始日期
     :param date: 代码编号
+    :param isNew: 首次记录交易信息
     :return:
     """
     __logger.info("Gather stock trade data, code = {}, date = {}".format(code, date))
     insert_datas = []
-    # 上一个交易日
-    yesterday_trade_date = my_common.get_yesterday_trading_date_before(date)
-    yesterday_df = stock_trade_daily_dao.query_stock_trade_daily(code, str(yesterday_trade_date),
-                                                                 str(yesterday_trade_date))
-    yesterday_close = yesterday_df['close'].values[0]
+
+    # 首次记录交易日期
+    if isNew:
+        # 第一条交易数据
+        is_first_data = True
+    else:
+        is_first_data = False
+        # 上一个交易日
+        yesterday_trade_date = my_common.get_yesterday_trading_date_before(date)
+        yesterday_df = stock_trade_daily_dao.query_stock_trade_daily(code, str(yesterday_trade_date),
+                                                                     str(yesterday_trade_date))
+        yesterday_close = yesterday_df['close'].values[0]
 
     df = ts.get_k_data(code, str(date), pause=0.5)
     if len(df) > 0:
@@ -74,8 +82,15 @@ def gather_stock_trade_data(code, date):
             # date  open  close  high   low    volume    code
             amount = 0
             turn_over_ratio = 0.0
-            increase = (row['close'] - yesterday_close) / yesterday_close * 100.0
-            amplitude = abs(row['high'] - row['low']) / yesterday_close * 100.0
+            # 第一条交易数据
+            if is_first_data:
+                increase = 99.0
+                amplitude = 99.0
+                is_first_data = False
+            else:
+                increase = (row['close'] - yesterday_close) / yesterday_close * 100.0
+                amplitude = abs(row['high'] - row['low']) / yesterday_close * 100.0
+
             data = [my_common.convert_standard_code(row['code']), row['open'], row['high'], row['low'], row['close'],
                     row['volume'], amount, turn_over_ratio, increase, amplitude, row['date']]
             insert_datas.append(data)
@@ -149,15 +164,19 @@ def __process_gather_stock_trade_data():
             try:
                 code = row['code']
                 max_trade_date = row['max_trade_date']
-                # 如果是最新的交易日数据，则跳过
-                if max_trade_date >= yesterday_trade_date:
-                    __logger.info(
-                        "Stock trade data is the newest data, code = {}, max_trade_date = {}".format(code,
-                                                                                                     max_trade_date))
-                    continue
+                if max_trade_date is not None:
+                    if max_trade_date >= yesterday_trade_date:
+                        __logger.info(
+                            "Stock trade data is the newest data, code = {}, max_trade_date = {}".format(code,
+                                                                                                         max_trade_date))
+                        continue
+                    else:
+                        next_date = max_trade_date + datetime.timedelta(days=1)
+                        gather_stock_trade_data(code, next_date)
+                else:
+                    # 第一次记录交易信息
+                    gather_stock_trade_data(code, datetime.datetime.strptime('2018-01-01', '%Y-%m-%d'), True)
 
-                next_date = max_trade_date + datetime.timedelta(days=1)
-                gather_stock_trade_data(code, next_date)
             except:
                 __logger.exception("Gather stock trade data error, code = {}".format(code))
 
@@ -196,14 +215,16 @@ def __process_gather_real_time_stock_trade_data():
 
 if __name__ == '__main__':
     # gather_stock_trade_data('300268')
-    # __process_gather_stock_trade_data()
+    __process_gather_stock_trade_data()
     # for i in range(3):
     #     __process_gather_stock_trade_data()
     # __process_gather_real_time_stock_trade_data()
 
     # day_all_df = ts.get_day_all('2018-07-25')
     # day_all_df.to_csv('/Users/gyang/develop/PycharmProjects/freedom/export/day_all.csv')
-    check_stock_status('2018-07-31')
-    # gather_current_day_stock_trade_data('2018-07-31')
+    # _day = '2018-10-10'
+    # check_stock_status(_day)
+    # gather_current_day_stock_trade_data(_day)
+    # gather_stock_trade_data('600604', _day)
     print("done!!!")
     pass

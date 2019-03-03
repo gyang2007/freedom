@@ -32,7 +32,7 @@ def query_stock_base():
     :return:
     """
     result_list = []
-    sql = 'select code, type, `name`, status, time_to_market from stock_base'
+    sql = 'select code, type, `name`, status, time_to_market from stock_base where type = 1'
     try:
         cur = db_util.get_connection().cursor()
         cur.execute(sql)

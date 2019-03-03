@@ -132,20 +132,21 @@ def convert_standard_code(code):
     return None
 
 
-def level_position(df, indicator='close'):
+def cal_price_position(code, date, indicator='close', timeperiod=120):
     """
-     计算最新的指标价格所在一定周期内价格的位置
-    :param df: DataFrame
-    :param indicator: 价格指标
-    :return: position
+    计算指定日期的价格所在一定周期内所在的位置
+    :param code:
+    :param date:
+    :param timeperiod:
+    :return:
     """
+    df = stock_trade_daily_dao.query_stock_trade_daily_limit_size(code, str(date), timeperiod)
     nearest_df = df[len(df) - 1:]
     value = nearest_df[indicator].values[0]
     max = df[indicator].max()
     min = df[indicator].min()
     position = (value - min) / (max - min) * 100.0
-    __logger.info(
-        'Cal price level position, min = {}, max = {}, price = {}, position = {}'.format(min, max, value, position))
+    # __logger.info('Cal price level position, min = {}, max = {}, price = {}, position = {}'.format(min, max, value, position))
     return position
 
 
@@ -199,10 +200,31 @@ def is_close_over_open_price(code, trade_date):
     return False
 
 
+def is_hightest_price(code, trade_date, peroid):
+    """
+    判断在指定日期上是否是一定周期内最大值
+    :param code:
+    :param trade_date:
+    :param peroid:
+    :return: True | False
+    """
+    if is_open_day(str(trade_date)):
+        stock_df = stock_trade_daily_dao.query_stock_trade_daily_limit_size(code, str(trade_date), peroid)
+        if len(stock_df) >= peroid:
+            last_trade_date = stock_df[len(stock_df) - 1:]['trade_date'].values[0]
+            if trade_date.strftime('%Y-%m-%d') == str(last_trade_date):
+                last_stock_close = stock_df[len(stock_df) - 1:]['close'].values[0]
+                if last_stock_close == stock_df['close'].max():
+                    return True
+
+    return False
+
+
 if __name__ == '__main__':
-    print(get_yesterday_trading_date_before('2018-07-25'))
-    print(get_yesterday_trading_date2())
-    print(get_yesterday_trading_date())
+    # print(get_yesterday_trading_date_before('2018-07-25'))
+    # print(get_yesterday_trading_date2())
+    # print(get_yesterday_trading_date())
     # print(ts.get_k_data('002061', '2018-07-23', '2018-07-24'))
     # ts.get_today_all().to_csv("/Users/gyang/develop/PycharmProjects/freedom/export/today_all.csv")
+    print(is_hightest_price('000636', datetime.datetime.strptime('2018-06-29', '%Y-%m-%d'), 120))
     pass

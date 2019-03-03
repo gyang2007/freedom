@@ -11,7 +11,7 @@ import freedom.model.common_indicator as my_common_indicator
 __logger = my_logger.getlogger('high_open')
 
 
-def __is_jump_high(code, date):
+def is_jump_high(code, date):
     """
     是否是跳空高开的数据
     :param code: 代码
@@ -41,7 +41,7 @@ def __process(date):
         if stock['status'] == 1 and stock['type'] == 1:
 
             # 跳空高开
-            if __is_jump_high(stock['code'], trade_date):
+            if is_jump_high(stock['code'], trade_date):
                 code_set.add(stock['code'])
 
     # 输出跳空高开的code集合
@@ -59,7 +59,7 @@ def __process(date):
         v_ratio = my_common_indicator.avg_volume_ratio(code, trade_date, 10)
         if v_ratio and v_ratio >= 2.0:
             p_std = my_common_indicator.cal_price_std(code, trade_date, 20)
-            p_position = my_common_indicator.cal_price_position(code, trade_date, 250)
+            p_position = my_common.cal_price_position(code, trade_date, timeperiod=250)
             result_df.loc[len(result_df)] = [code, p_position, p_std, v_ratio]
 
     # 排序输出

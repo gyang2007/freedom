@@ -45,15 +45,3 @@ def cal_price_std(code, date, timeperiod=10):
         __logger.warn("样本数据数量不足, code = {}, date = {}, timeperiod = {}".format(code, str(date), timeperiod))
 
     return df['close'].std()
-
-
-def cal_price_position(code, date, timeperiod=120):
-    """
-    计算指定日期的价格所在一定周期内所在的位置
-    :param code:
-    :param date:
-    :param timeperiod:
-    :return:
-    """
-    df = stock_trade_daily_dao.query_stock_trade_daily_limit_size(code, str(date), timeperiod)
-    return my_common.level_position(df, 'close')

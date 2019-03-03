@@ -154,7 +154,7 @@ def query_stock_max_trade_date():
         ) t2 ON t1. CODE = t2. CODE
         WHERE
             t1. STATUS = 1
-        AND t1.type = 1;    
+        AND t1.type = 1 order by t2.max_trade_date;    
     """
     try:
         return pd.read_sql(sql, con=db_util.get_connection())

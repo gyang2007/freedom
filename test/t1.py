@@ -3,6 +3,7 @@ import time
 import tushare as ts
 import pandas as pd
 import talib as ta
+import numpy as np
 
 # now = datetime.datetime.now()
 # point_time = datetime.datetime.strptime('{}-{}-{} {}:{}:{}'.format(now.year, now.month, now.day, '09', '30', '00'),
@@ -25,8 +26,8 @@ import talib as ta
 # print(len(df))
 # print(len(df.index))
 
-# df = pd.DataFrame({'a': [1, 2, 3], 'b': [1, None, None], 'c': [1, 2, 3], 'd': ['d1', 'd2', None]},
-#                   columns=['a', 'b', 'c', 'd'])
+df = pd.DataFrame({'a': [1, 2, 3], 'b': [1, None, None], 'c': [1, 2, 3], 'd': ['d1', 'd2', None]},
+                  columns=['a', 'b', 'c', 'd'])
 # df['b'] = -1
 # df['b'][0] = 1
 # df['b'][1] = 2
@@ -37,10 +38,11 @@ import talib as ta
 # print(df.loc[0:1, 'a':'c'])
 # print(df[['a', 'c']])
 # print(df[0:1])
+# print(df['a'].max())
 
-# dd = datetime.datetime.strptime('2018-07-25', '%Y-%m-%d')
-# dd2 = dd - datetime.timedelta(days=1)
-# print(dd > dd2)
+dd = datetime.datetime.strptime('2018-07-25', '%Y-%m-%d')
+dd2 = dd - datetime.timedelta(days=1)
+print(dd > dd2)
 
 # df = ts.get_day_all('2018-07-24')
 # print(df)
@@ -56,9 +58,23 @@ import talib as ta
 # # print(sss)
 # # print(sss2)
 
-sss = pd.Series({'000123': {'a1': 'v1', 'a2': 'v2'}, '000001': {'b1': 'v1', 'b2': 'v2'}})
-sss = sss.append(pd.Series({'000005': {'c1': 'c1', 'a2': 'v2'}}))
-print(sss)
-result = sss.get('000123')
-if not result:
-    print(True)
+# sss = pd.Series({'000123': {'a1': 'v1', 'a2': 'v2'}, '000001': {'b1': 'v1', 'b2': 'v2'}})
+# sss = sss.append(pd.Series({'000005': {'c1': 'c1', 'a2': 'v2'}}))
+# print(sss)
+# result = sss.get('000123')
+# if not result:
+#     print(True)
+
+# d = datetime.date.today()
+# dd = datetime.datetime.combine(d, datetime.datetime.min.time())
+#
+# print(d)
+# print(dd)
+# print(datetime.datetime.today())
+
+# print(np.std([3, 5, 7], ddof=1))
+# print(np.std([8, 10, 12], ddof=1))
+# print(np.std([98, 100, 102], ddof=1))
+#
+# df = pd.DataFrame([8, 10, 12])
+# print(df.std()[0])
