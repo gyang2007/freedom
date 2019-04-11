@@ -18,3 +18,6 @@ db_datasource_port = conf.getint("db", "datasource_port")
 db_datasource_mincached = conf.getint("db", "datasource_mincached")
 db_datasource_maxcached = conf.getint("db", "datasource_maxcached")
 db_datasource_maxconnections = conf.getint("db", "datasource_maxconnections")
+
+log_config = conf.get("log", "log_config")
+log_dir = conf.get("log", "log_dir")

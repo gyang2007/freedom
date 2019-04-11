@@ -25,7 +25,7 @@ def check_stock_status(trade_date):
                 stock_local = stock_series.get(code)
                 # 本系统中无此stock数据
                 if not stock_local:
-                    __logger.warn(
+                    __logger.warning(
                         "Stock is not exists in local system, code = {}".format(code))
                     continue
 
@@ -39,15 +39,15 @@ def check_stock_status(trade_date):
                     if stock_local and stock_local['status'] == 1:
                         # 修改本系统状态为停牌
                         stock_base_dao.update_stock_status(code, 2)
-                        # __logger.warn("Stock is already suspension, but no suspension in local system, code = {}".format(code))
-                        __logger.warn("Update stock status in local system, code = {}, status = 2".format(code))
+                        # __logger.warning("Stock is already suspension, but no suspension in local system, code = {}".format(code))
+                        __logger.warning("Update stock status in local system, code = {}, status = 2".format(code))
                         continue
                 else:
                     if stock_local and (not stock_local['status'] == 1):
                         # 修改本系统状态为正常
                         stock_base_dao.update_stock_status(code, 1)
-                        # __logger.warn("Stock is no suspension, but suspension in local system, code = {}".format(code))
-                        __logger.warn("Update stock status in local system, code = {}, status = 1".format(code))
+                        # __logger.warning("Stock is no suspension, but suspension in local system, code = {}".format(code))
+                        __logger.warning("Update stock status in local system, code = {}, status = 1".format(code))
                         continue
 
 
@@ -102,7 +102,7 @@ def gather_stock_trade_data(code, date, isNew=False):
             "Gather stock trade data success, code = {}, date = {}, size = {}".format(code, date, len(insert_datas)))
 
     else:
-        __logger.warn("Get stock trade data empty, code = {}, date = {}".format(code, date))
+        __logger.warning("Get stock trade data empty, code = {}, date = {}".format(code, date))
 
 
 def gather_current_day_stock_trade_data(date=None):
@@ -128,7 +128,7 @@ def gather_current_day_stock_trade_data(date=None):
                 volume = row['volume']
                 # 停牌
                 if open == 0.0 and high == 0.0 and low == 0.0 and volume == 0.0:
-                    # __logger.warn("Stock is already suspension, code = {}".format(code))
+                    # __logger.warning("Stock is already suspension, code = {}".format(code))
                     continue
 
                 # 查看在本系统中是否是停牌状态
@@ -140,7 +140,7 @@ def gather_current_day_stock_trade_data(date=None):
                                 row['volume'], 0.0, 0.0, row['p_change'], row['range'], str(current_date)]
                         insert_datas.append(data)
                     else:
-                        __logger.warn("Stock在系统中的状态为停牌或退市, code = {}, status = {}".format(code, stock_base['status']))
+                        __logger.warning("Stock在系统中的状态为停牌或退市, code = {}, status = {}".format(code, stock_base['status']))
 
             # 删除当天的数据
             if len(insert_datas) > 0:
@@ -214,6 +214,7 @@ def __process_gather_real_time_stock_trade_data():
 
 
 if __name__ == '__main__':
+    __logger.info("!!")
     # gather_stock_trade_data('300268')
     __process_gather_stock_trade_data()
     # for i in range(3):
@@ -222,7 +223,7 @@ if __name__ == '__main__':
 
     # day_all_df = ts.get_day_all('2018-07-25')
     # day_all_df.to_csv('/Users/gyang/develop/PycharmProjects/freedom/export/day_all.csv')
-    # _day = '2018-10-10'
+    # _day = '2019-03-05'
     # check_stock_status(_day)
     # gather_current_day_stock_trade_data(_day)
     # gather_stock_trade_data('600604', _day)

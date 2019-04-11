@@ -2,9 +2,9 @@ import logging.config
 
 import yaml
 
-# with open('freedom/log/logging.yml', 'r') as f_conf:
-with open('/Users/gyang/develop/PycharmProjects/freedom/freedom/log/logging.yml', 'r') as f_conf:
-    print("load log config[logging.yml]")
+import freedom.config as g_config
+
+with open(g_config.log_config, 'r') as f_conf:
     dict_conf = yaml.load(f_conf)
 
 logging.config.dictConfig(dict_conf)

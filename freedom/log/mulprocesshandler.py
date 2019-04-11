@@ -3,6 +3,7 @@ import os
 import re
 import datetime
 import logging
+import freedom.config as g_config
 
 try:
     import codecs
@@ -12,7 +13,7 @@ except ImportError:
 
 class MultiprocessHandler(logging.FileHandler):
     """支持多进程的TimedRotatingFileHandler"""
-    __log_dir = '/Users/gyang/develop/PycharmProjects/freedom/logs'
+    __log_dir = g_config.log_dir
 
     def __init__(self, filename, when='H', backupCount=24, encoding=None, delay=False):
         """filename 日志文件名,when 时间间隔的单位,backupCount 保留文件个数
